@@ -1,0 +1,100 @@
+package com.example.plugin;
+
+import cn.nukkit.Player;
+import cn.nukkit.Server;
+import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.Listener;
+import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.event.player.PlayerJoinEvent;
+import cn.nukkit.event.player.PlayerRespawnEvent;
+import cn.nukkit.inventory.Item;
+import cn.nukkit.item.ItemTool;
+import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.utils.Config;
+
+import java.util.Random;
+
+public class CustomPlugin extends PluginBase implements Listener {
+
+    private final Random random = new Random();
+
+    @Override
+    public void onEnable() {
+        this.getServer().getPluginManager().registerEvents(this, this);
+        this.getLogger().info("CustomPlugin enabled!");
+    }
+
+    @Override
+    public void onDisable() {
+        this.getLogger().info("CustomPlugin disabled!");
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+
+            // Reduce fall damage by 75%
+            if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+                event.setDamage(event.getDamage() * 0.25);
+            } else {
+                // Regular damage stays the same for players
+                return;
+            }
+        } else {
+            // Increase damage by 1.5x for non-player entities
+            event.setDamage(event.getDamage() * 1.5);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        teleportToRandomLocation(player);
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        teleportToRandomLocation(player);
+    }
+
+    private void teleportToRandomLocation(Player player) {
+        int x = random.nextInt(6001) - 3000; // Range -3000 to 3000
+        int z = random.nextInt(6001) - 3000; // Range -3000 to 3000
+        int y = getSafeY(x, z);
+
+        if (y != -1) {
+            player.teleport(player.getLevel().getSafeSpawn(x, y, z));
+        } else {
+            player.teleport(player.getLevel().getSafeSpawn()); // Fallback to the world's default spawn point
+        }
+    }
+
+    private int getSafeY(int x, int z) {
+        for (int y = 255; y > 0; y--) {
+            if (!Server.getInstance().getDefaultLevel().getBlock(x, y, z).isSolid()) {
+                return y + 1; // Return the first non-solid block above ground
+            }
+        }
+        return -1; // No valid Y found
+    }
+
+    @EventHandler
+    public void onPlayerItemUse(Player player) {
+        player.getInventory().getContents().values().forEach(item -> {
+            if (item instanceof ItemTool && ((ItemTool) item).getTier() == ItemTool.TIER_NETHERITE) {
+                item.setUnbreakable(true); // Make Netherite tools unbreakable
+            }
+        });
+    }
+
+    @EventHandler
+    public void onItemDropRate(EntityDamageEvent event) {
+        // Handle custom drop rate logic here if needed
+    }
+
+    @Override
+    public void onCommand(Player player, String[] args){
+        if (player."
+}}
