@@ -1,0 +1,6 @@
+--- # Poggit-CI manifest. 에서 CI를 엽니다 https://poggit.pmmp.io/ci/Suigeumchui/x2minus
+기본적으로 빌드: true
+분기:
+-주요한
+프로젝트 : []
+... 
